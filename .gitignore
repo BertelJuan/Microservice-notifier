@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Secretos y archivos locales ###
+env.ps1
+.env
+*.env
+salida.txt
+
+### Herramientas de asistentes ###
+.github/modernize/

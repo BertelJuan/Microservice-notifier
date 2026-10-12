@@ -36,7 +36,7 @@ public class EmailMessageComposer {
               page(
                   name,
                   "Tu cuenta fue creada y ya puedes usarla.",
-                  item("Número de cuenta", data.get("accountId")),
+                  item("Número de cuenta", mask(data.get("accountNumber"))),
                   "¡Gracias por registrarte!"));
     };
   }
@@ -55,6 +55,18 @@ public class EmailMessageComposer {
         </html>
         """
         .formatted(name, intro, items, footer);
+  }
+
+  /** Deja visibles solo los últimos 4 dígitos: ******8480. */
+  static String mask(final String value) {
+    if (value == null || value.isBlank()) {
+      return "";
+    }
+    final String clean = value.trim();
+    if (clean.length() <= 4) {
+      return "*".repeat(clean.length());
+    }
+    return "*".repeat(clean.length() - 4) + clean.substring(clean.length() - 4);
   }
 
   private static String item(final String label, final String value) {

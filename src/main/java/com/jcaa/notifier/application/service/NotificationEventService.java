@@ -1,6 +1,7 @@
 package com.jcaa.notifier.application.service;
 
 import com.jcaa.notifier.application.port.in.ProcessNotificationEventUseCase;
+import com.jcaa.notifier.application.port.out.PublishNotificationResultPort;
 import com.jcaa.notifier.application.port.out.SendNotificationPort;
 import com.jcaa.notifier.application.service.dto.command.NotificationEventCommand;
 import com.jcaa.notifier.domain.enums.NotificationType;
@@ -17,14 +18,17 @@ public class NotificationEventService implements ProcessNotificationEventUseCase
 
   private final SendNotificationPort sendNotificationPort;
   private final EmailMessageComposer messageComposer;
+  private final PublishNotificationResultPort publishNotificationResultPort;
   private final String senderEmail;
 
   public NotificationEventService(
       final SendNotificationPort sendNotificationPort,
       final EmailMessageComposer messageComposer,
+      final PublishNotificationResultPort publishNotificationResultPort,
       @Value("${notifier.sender.email:no-reply@example.com}") final String senderEmail) {
     this.sendNotificationPort = sendNotificationPort;
     this.messageComposer = messageComposer;
+    this.publishNotificationResultPort = publishNotificationResultPort;
     this.senderEmail = senderEmail;
   }
 
@@ -46,5 +50,11 @@ public class NotificationEventService implements ProcessNotificationEventUseCase
 
     sendNotificationPort.send(notification);
     log.info("Notificación {} ({}) entregada.", notification.id().value(), notification.type());
+
+    // Solo se confirma si el evento trae userId, que es lo que users necesita para actualizar.
+    final String userId = command.data().get("userId");
+    if (userId != null && !userId.isBlank()) {
+      publishNotificationResultPort.publishSent(command.eventId(), userId, type.name());
+    }
   }
 }

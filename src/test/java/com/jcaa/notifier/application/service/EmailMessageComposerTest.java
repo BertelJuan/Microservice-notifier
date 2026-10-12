@@ -33,12 +33,24 @@ class EmailMessageComposerTest {
   }
 
   @Test
-  void accountCreatedIncludesAccountId() {
+  void accountCreatedShowsMaskedAccountNumber() {
     final EmailMessage message =
-        composer.compose(NotificationType.ACCOUNT_CREATED, "Ana", Map.of("accountId", "123"));
+        composer.compose(
+            NotificationType.ACCOUNT_CREATED,
+            "Ana",
+            Map.of("accountId", "uuid-interno", "accountNumber", "7159968480"));
 
     assertTrue(message.subject().contains("lista"));
-    assertTrue(message.body().contains("123"));
+    assertTrue(message.body().contains("******8480"));
+    assertFalse(message.body().contains("7159968480"));
+    assertFalse(message.body().contains("uuid-interno"));
+  }
+
+  @Test
+  void maskHandlesShortAndMissingValues() {
+    assertEquals("", EmailMessageComposer.mask(null));
+    assertEquals("***", EmailMessageComposer.mask("123"));
+    assertEquals("******8480", EmailMessageComposer.mask("7159968480"));
   }
 
   @Test
