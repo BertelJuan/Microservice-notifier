@@ -151,6 +151,21 @@ Cubren el dominio (`Notification`), la composición de correos, el caso de uso (
 
 - Tipo: Web Service con Docker (usa el `Dockerfile` de la raíz).
 - Health check path: `/actuator/health`.
-- Variables de entorno: las de la tabla anterior, más las credenciales de Aiven.
+- Variables de entorno: las de las tablas anteriores, incluidas las de Aiven
 
-**Pendiente:** conexión segura a Kafka en Aiven (SSL/SASL), a cargo de un compañero del grupo, y confirmar con `cuentas` el formato de `ACCOUNT_CREATED`.
+## Conexión a Kafka en Aiven (perfil `cloud`)
+
+Por defecto el servicio usa `localhost:9092` sin seguridad (desarrollo local). Para conectarse a Aiven se activa el perfil `cloud` (`SPRING_PROFILES_ACTIVE=cloud`), que usa `SASL_SSL` con SCRAM-SHA-256 y el certificado CA de Aiven en formato PEM.
+
+| Variable | Descripción |
+|---|---|
+| `SPRING_PROFILES_ACTIVE` | `cloud` |
+| `KAFKA_BOOTSTRAP_SERVERS` | `host:puerto` del servicio de Aiven (puerto SASL) |
+| `KAFKA_USERNAME` / `KAFKA_PASSWORD` | Credenciales de Aiven |
+| `KAFKA_CA_PATH` | Ruta del archivo PEM con el certificado CA |
+| `KAFKA_SASL_MECHANISM` | Opcional. Por defecto `SCRAM-SHA-256` |
+| `KAFKA_LOGIN_MODULE` | Opcional. Para `PLAIN`: `org.apache.kafka.common.security.plain.PlainLoginModule` |
+
+Tópicos en Aiven: `users.events` y `accounts.events` (entrada) y `notifications.events` (resultado).
+
+El certificado y las contraseñas nunca van en el repositorio (`*.pem` está en `.gitignore`). En Render el certificado se sube como Secret File (`/etc/secrets/aiven-ca.pem`).

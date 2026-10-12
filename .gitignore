@@ -40,3 +40,5 @@ salida.txt
 
 ### Herramientas de asistentes ###
 .github/modernize/
+
+*.pem
